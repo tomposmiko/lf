@@ -1,0 +1,35 @@
+---
+version: "3.9"
+services:
+
+  ########## Liferay DXP ###############
+  liferay-dxp1:
+    image: "liferay/dxp:latest"
+    container_name: "liferay-dxp1"
+    environment:
+      LIFERAY_WEB_PERIOD_SERVER_PERIOD_DISPLAY_PERIOD_NODE: "true"
+      LIFERAY_TOMCAT_JVM_ROUTE: "dxp1"
+    ports:
+      - 8081:8080
+  liferay-dxp2:
+    image: "liferay/dxp:latest"
+    container_name: "liferay-dxp2"
+    environment:
+      LIFERAY_WEB_PERIOD_SERVER_PERIOD_DISPLAY_PERIOD_NODE: "true"
+      LIFERAY_TOMCAT_JVM_ROUTE: "dxp2"
+    ports:
+      - 8082:8080
+
+  ########## Reverse proxy ##############
+  haproxy:
+    image: "haproxy:latest"
+    container_name: "haproxy"
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - 80:80
+    sysctls:
+      - net.ipv4.ip_unprivileged_port_start=0
+    links:
+      - liferay-dxp1:dxp1
+      - liferay-dxp2:dxp2
